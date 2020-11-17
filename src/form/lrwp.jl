@@ -10,18 +10,22 @@ function constraint_pipe_weymouth(gm::AbstractLRWPModel, n::Int, k, i, j, f_min,
     pj = var(gm, n, :psqr, j)
     f = var(gm, n, :f_pipe, k)
     # variable_pipe_fmod_f()
-    if get(var(gm, n), :f_pipe_lifted, false) == false 
-        var(gm, n)[:f_lifted] = Dict()
-    end 
+    if get(var(gm, n), :fmodf_pipe_lifted) == false
+        var(gm, n)[:fmodf_pipe_lifted] = Dict()
+    end
+    var(gm, n, :fmodf_pipe_lifted)[k] = JuMP.@variable(gm.model, base_name="fmodf_pipe_lifted_$(k)")
+    fmodf_lifted = var(gm, n, :fmodf_pipe_lifted, k)
 
-    var(gm, n, :f_pipe_lifted)[k] = JuMP.@variable(gm.model, base_name="f_lifted_$(k))
-    fmodf_lifted = var(gm, n, :f_pipe_lifted, k)
     _add_constraint!(gm, n, :weymouth1, k, JuMP.@constraint(gm.model, w * (pi - pj) == fmodf_lifted))
 
     #relaxation for fmodf
         fmodf = x->x*(abs(x))
-        partition = [f_min,0,f_max]
-        relaxation_data = add_lp_relaxation(fmodf, partition,gm,name="pipe_fmodf_lp_relaxation")
+        if(f_min<=0)
+            partition = [f_min,0,f_max]
+        elseif (fmin>0)
+            partition = [f_min, f_max]
+        end
+        relaxation_data = add_lp_relaxation(fmodf, partition,gm.model,name="pipe_fmodf_lp_relaxation")
         vars_in_relax = relaxation_data[1];
         f_index = relaxation_data[2];
         fmodf_index = relaxation_data[3];
@@ -33,9 +37,65 @@ end
 
 "Constraint: Darcy-Weisbach equation--not applicable for LRWP models"
 function constraint_resistor_darcy_weisbach(gm::AbstractLRWPModel, n::Int, k, i, j, f_min, f_max, w, pd_min, pd_max)
-    # TODO Linear convex hull of the weymouth equations in wp.jl
+    pi = var(gm, n, :p, i)
+    pj = var(gm, n, :p, j)
+    f = var(gm, n, :f_resistor, k)
+    # variable_resistor_y_linear()
+    if get(var(gm, n), :y_resistor_linear) == false
+        var(gm, n)[:y_resistor_linear] = Dict()
+    end
+    var(gm, n, :y_resistor_linear)[k] = JuMP.@variable(gm.model, base_name="y_resistor_linear_$(k)")
+    y_linear = var(gm, n, :y_resistor_linear, k)
+
+    # variable_resistor_fmod_f()
+    if get(var(gm, n), :fmodf_resistor_lifted) == false
+        var(gm, n)[:fmodf_resistor_lifted] = Dict()
+    end
+    var(gm, n, :fmodf_resistor_lifted)[k] = JuMP.@variable(gm.model, base_name="fmodf__resistor_lifted_$(k)")
+    fmodf_lifted = var(gm, n, :fmodf__resistor_lifted, k)
+
+    _add_constraint!(gm, n, :darcy_weisbach_1, k, JuMP.@constraint(gm.model, w* (pi - pj) = f_modf_lifted))
+
+    #relaxation for fmodf
+        fmodf = x->x*(abs(x))
+        if(f_min<=0)
+            partition = [f_min,0,f_max]
+        elseif (fmin>0)
+            partition = [f_min, f_max]
+        end
+
+        relaxation_data = add_lp_relaxation(fmodf, partition,gm.model,name="resistor_fmodf_lp_relaxation")
+        vars_in_relax = relaxation_data[1];
+        f_index = relaxation_data[2];
+        fmodf_index = relaxation_data[3];
+        _add_constraint!(gm, n, :darcy_weisbach_2, k, JuMP.@constraint(gm.model, f == vars_in_relax[f_index]))
+        _add_constraint!(gm, n, :darcy_weisbach_3, k, JuMP.@constraint(gm.model, f_modf_lifted == vars_in_relax[fmodf_index]))
+
 end
 
+function constraint_resistor_junction_pressure_squared_pressure(gm::AbstractLRWPModel, n::Int, i::Int, p_min, p_max)
+    p = var(gm, n, :p, i)
+    psqr = var(gm, n, :psqr, i)
+    if get(var(gm, n), :pp_lifted) == false
+        var(gm, n)[:pp_lifted] = Dict()
+    end
+    var(gm, n, :pp_lifted)[i] = JuMP.@variable(gm.model, base_name="pp_lifted_$(i)")
+    pp_lifted = var(gm, n, :pp_lifted, i)
+
+    _add_constraint!(gm, n, :sqrd_pressure_relaxation_1, i, JuMP.@constraint(gm.model, psqr = pp_lifted))
+
+    # relaxation for p*p
+    pp = x->x*x
+    partition = [p_min, p_max]
+
+    relaxation_data = add_lp_relaxation(pp, partition,gm.model,name="pp_lp_relaxation")
+    vars_in_relax = relaxation_data[1];
+    p_index = relaxation_data[2];
+    pp_index = relaxation_data[3];
+    _add_constraint!(gm, n, :sqrd_pressure_relaxation_2, k, JuMP.@constraint(gm.model, p == vars_in_relax[p_index]))
+    _add_constraint!(gm, n, :sqrd_pressure_relaxation_3, k, JuMP.@constraint(gm.model, pp_lifted == vars_in_relax[pp_index]))
+
+end
 
 "Constraint: Define pressures across a resistor"
 function constraint_resistor_pressure(gm::AbstractLRWPModel, n::Int, k::Int, i::Int, j::Int, pd_min::Float64, pd_max::Float64)
