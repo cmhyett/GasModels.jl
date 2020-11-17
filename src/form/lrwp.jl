@@ -6,7 +6,28 @@
 
 "Constraint: Weymouth equation--not applicable for LRWP models"
 function constraint_pipe_weymouth(gm::AbstractLRWPModel, n::Int, k, i, j, f_min, f_max, w, pd_min, pd_max)
-    # TODO Linear convex hull of the weymouth equations in wp.jl
+    pi = var(gm, n, :psqr, i)
+    pj = var(gm, n, :psqr, j)
+    f = var(gm, n, :f_pipe, k)
+    # variable_pipe_fmod_f()
+    if get(var(gm, n), :f_pipe_lifted, false) == false 
+        var(gm, n)[:f_lifted] = Dict()
+    end 
+
+    var(gm, n, :f_pipe_lifted)[k] = JuMP.@variable(gm.model, base_name="f_lifted_$(k))
+    fmodf_lifted = var(gm, n, :f_pipe_lifted, k)
+    _add_constraint!(gm, n, :weymouth1, k, JuMP.@constraint(gm.model, w * (pi - pj) == fmodf_lifted))
+
+    #relaxation for fmodf
+        fmodf = x->x*(abs(x))
+        partition = [f_min,0,f_max]
+        relaxation_data = add_lp_relaxation(fmodf, partition,gm,name="pipe_fmodf_lp_relaxation")
+        vars_in_relax = relaxation_data[1];
+        f_index = relaxation_data[2];
+        fmodf_index = relaxation_data[3];
+        _add_constraint!(gm, n, :weymouth2, k, JuMP.@constraint(gm.model, f == vars_in_relax[f_index]))
+        _add_constraint!(gm, n, :weymouth3, k, JuMP.@constraint(gm.model, f_modf_lifted == vars_in_relax[fmodf_index]))
+
 end
 
 

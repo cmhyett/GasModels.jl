@@ -13,6 +13,7 @@ module GasModels
 
     using Dates
     using Dierckx
+    using PolyhedralRelaxations
 
     const MOI = MathOptInterface
     const MOIU = MathOptInterface.Utilities
