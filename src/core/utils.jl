@@ -1,7 +1,7 @@
 function add_lp_relaxation(
     f::Function,
     partition::Vector{Float64},
-    error_tolerance::Float64,
+    # error_tolerance::Float64,
     m::JuMP.AbstractModel;
     name = "1",
 )
@@ -10,7 +10,7 @@ function add_lp_relaxation(
         partition,
         length_tolerance = 1e-5,
         derivative_tolerance = 1e-5,
-        error_tolerance = error_tolerance,
+        error_tolerance = 1e-5,
     )
     num_variables = get_num_variables(relaxation)
     lb, ub = get_variable_bounds(relaxation)
