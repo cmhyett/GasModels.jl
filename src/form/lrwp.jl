@@ -35,7 +35,7 @@ function constraint_pipe_weymouth(gm::AbstractLRWPModel, n::Int, k, i, j, f_min,
         f_index = relaxation_data[2];
         fmodf_index = relaxation_data[3];
         _add_constraint!(gm, n, :weymouth2, k, JuMP.@constraint(gm.model, f == vars_in_relax[f_index]))
-        _add_constraint!(gm, n, :weymouth3, k, JuMP.@constraint(gm.model, f_modf_lifted == vars_in_relax[fmodf_index]))
+        _add_constraint!(gm, n, :weymouth3, k, JuMP.@constraint(gm.model, fmodf_lifted == vars_in_relax[fmodf_index]))
 
 end
 
@@ -83,7 +83,7 @@ function constraint_resistor_darcy_weisbach(gm::AbstractLRWPModel, n::Int, k, i,
     var(gm, n, :fmodf_resistor_lifted)[k] = JuMP.@variable(gm.model, base_name="fmodf__resistor_lifted_$(k)")
     fmodf_lifted = var(gm, n, :fmodf__resistor_lifted, k)
 
-    _add_constraint!(gm, n, :darcy_weisbach_1, k, JuMP.@constraint(gm.model, (1.0/w)* (p_i - p_j) == f_modf_lifted))
+    _add_constraint!(gm, n, :darcy_weisbach_1, k, JuMP.@constraint(gm.model, (1.0/w)* (p_i - p_j) == fmodf_lifted))
 
     #relaxation for fmodf
         fmodf = x->x*(abs(x))
@@ -98,7 +98,7 @@ function constraint_resistor_darcy_weisbach(gm::AbstractLRWPModel, n::Int, k, i,
         f_index = relaxation_data[2];
         fmodf_index = relaxation_data[3];
         _add_constraint!(gm, n, :darcy_weisbach_2, k, JuMP.@constraint(gm.model, f == vars_in_relax[f_index]))
-        _add_constraint!(gm, n, :darcy_weisbach_3, k, JuMP.@constraint(gm.model, f_modf_lifted == vars_in_relax[fmodf_index]))
+        _add_constraint!(gm, n, :darcy_weisbach_3, k, JuMP.@constraint(gm.model, fmodf_lifted == vars_in_relax[fmodf_index]))
 
         constraint_resistor_junction_pressure_squared_relaxation(gm,n,i,ref(gm, n, :junction, i)["p_min"],ref(gm, n, :junction, i)["p_max"])
         constraint_resistor_junction_pressure_squared_relaxation(gm,n,j,ref(gm, n, :junction, j)["p_min"],ref(gm, n, :junction, j)["p_max"])
