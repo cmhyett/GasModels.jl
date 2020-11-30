@@ -15,7 +15,7 @@ function add_lp_relaxation(
     num_variables = get_num_variables(relaxation)
     lb, ub = get_variable_bounds(relaxation)
     names = get_variable_names(relaxation)
-    x = @variable(
+    x = JuMP.@variable(
         m,
         [i = 1:num_variables],
         lower_bound = lb[i],
@@ -46,7 +46,7 @@ function add_milp_relaxation(
     lb, ub = get_variable_bounds(relaxation)
     names = get_variable_names(relaxation)
     binary = relaxation.binary
-    x = @variable(
+    x = JuMP.@variable(
         m,
         [i = 1:num_variables],
         lower_bound = lb[i],
