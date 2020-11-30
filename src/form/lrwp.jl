@@ -69,12 +69,6 @@ function constraint_resistor_darcy_weisbach(gm::AbstractLRWPModel, n::Int, k, i,
     p_i = var(gm, n, :p, i)
     p_j = var(gm, n, :p, j)
     f = var(gm, n, :f_resistor, k)
-    # variable_resistor_y_linear()
-    # if get(var(gm, n), :y_resistor_linear) == false
-        var(gm, n)[:y_resistor_linear] = Dict()
-    # end
-    var(gm, n, :y_resistor_linear)[k] = JuMP.@variable(gm.model, base_name="y_resistor_linear_$(k)")
-    y_linear = var(gm, n, :y_resistor_linear, k)
 
     # variable_resistor_fmod_f()
     # if get(var(gm, n), :fmodf_resistor_lifted) == false
@@ -381,7 +375,6 @@ end
 
 "Constraint: constrains the energy of the compressor"
 function constraint_compressor_energy(gm::AbstractLRWPModel, n::Int, k, power_max, m, work)
-    #TODO Linear convex hull equations in wp.jl
     #required variables
     r = var(gm, n, :rsqr, k)
     f = var(gm, n, :f_compressor, k)
