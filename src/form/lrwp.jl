@@ -49,7 +49,7 @@ function constraint_resistor_junction_pressure_squared_relaxation(gm::AbstractLR
     var(gm, n, :pp_lifted)[i] = JuMP.@variable(gm.model, base_name="pp_lifted_$(i)")
     pp_lifted = var(gm, n, :pp_lifted, i)
 
-    _add_constraint!(gm, n, :sqrd_pressure_relaxation_1, i, JuMP.@constraint(gm.model, psqr = pp_lifted))
+    _add_constraint!(gm, n, :sqrd_pressure_relaxation_1, i, JuMP.@constraint(gm.model, psqr == pp_lifted))
 
     # relaxation for p*p
     pp = x->x*x
@@ -83,7 +83,7 @@ function constraint_resistor_darcy_weisbach(gm::AbstractLRWPModel, n::Int, k, i,
     var(gm, n, :fmodf_resistor_lifted)[k] = JuMP.@variable(gm.model, base_name="fmodf__resistor_lifted_$(k)")
     fmodf_lifted = var(gm, n, :fmodf__resistor_lifted, k)
 
-    _add_constraint!(gm, n, :darcy_weisbach_1, k, JuMP.@constraint(gm.model, (1.0/w)* (p_i - p_j) = f_modf_lifted))
+    _add_constraint!(gm, n, :darcy_weisbach_1, k, JuMP.@constraint(gm.model, (1.0/w)* (p_i - p_j) == f_modf_lifted))
 
     #relaxation for fmodf
         fmodf = x->x*(abs(x))
@@ -125,7 +125,7 @@ function constraint_loss_resistor_pressure(gm::AbstractLRWPModel, n::Int, k::Int
     constraint_resistor_junction_pressure_squared_relaxation(gm,n,i,ref(gm, n, :junction, i)["p_min"],ref(gm, n, :junction, i)["p_max"])
     constraint_resistor_junction_pressure_squared_relaxation(gm,n,j,ref(gm, n, :junction, j)["p_min"],ref(gm, n, :junction, j)["p_max"])
 
-    _add_constraint!(gm, n, :loss_resistor_1, k, JuMP.@constraint(gm.model, p_i -p_j = (2*y_linear -1)*pd))
+    _add_constraint!(gm, n, :loss_resistor_1, k, JuMP.@constraint(gm.model, p_i -p_j == (2*y_linear -1)*pd))
 
     f_min = ref(gm, n, :loss_resistor, k)["f_min"]
     f_max = ref(gm, n, :loss_resistor, k)["f_max"]
