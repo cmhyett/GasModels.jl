@@ -200,6 +200,8 @@ function constraint_compressor_energy(gm::AbstractLRDWPModel, n::Int, k, power_m
 
     min_ratio = ref(gm, n, :compressor, k)["c_ratio_min"]
     max_ratio = ref(gm, n, :compressor, k)["c_ratio_max"]
+    f_min = ref(gm, n, :compressor, k)["flow_min"]
+    f_max = ref(gm, n, :compressor, k)["flow_max"]
 
     # polyhedral relaxation for r_exp = r^(m/2)-1
         r_exp = x->x^(m/2)-1
