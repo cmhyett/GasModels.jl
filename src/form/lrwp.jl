@@ -14,9 +14,9 @@ function constraint_pipe_weymouth(gm::AbstractLRWPModel, n::Int, k, i, j, f_min,
     f = var(gm, n, :f_pipe, k)
 
     # variable_pipe_fmod_f()
-    if get(var(gm, n, :fmodf_pipe_lifted),k) == false
+    # if get(var(gm, n, :fmodf_pipe_lifted),k) == false
         var(gm, n)[:fmodf_pipe_lifted] = Dict()
-    end
+    # end
     var(gm, n, :fmodf_pipe_lifted)[k] = JuMP.@variable(gm.model, base_name="fmodf_pipe_lifted_$(k)")
     fmodf_lifted = var(gm, n, :fmodf_pipe_lifted, k)
 
