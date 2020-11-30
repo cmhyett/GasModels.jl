@@ -412,7 +412,7 @@ function constraint_compressor_energy(gm::AbstractLRWPModel, n::Int, k, power_ma
         r_exp_l = min_ratio^(m/2)-1;
         r_exp_u = max_ratio^(m/2)-1;
 
-        _add_constraint!(gm, n, :comp_energy_3, k, JuMP.@constant(gm.model, fr_lifted <= power_max / work))
+        _add_constraint!(gm, n, :comp_energy_3, k, JuMP.@constraint(gm.model, fr_lifted <= power_max / work))
         _add_constraint!(gm, n, :comp_energy_3_mc1, k, JuMP.@constraint(gm.model, fr_lifted - f*r_exp_l - f_min*r_exp_lifted + f_min*r_exp_l >= 0))
         _add_constraint!(gm, n, :comp_energy_3_mc2, k, JuMP.@constraint(gm.model, fr_lifted - f*r_exp_l - f_max*r_exp_lifted + f_max*r_exp_l <= 0))
         _add_constraint!(gm, n, :comp_energy_3_mc3, k, JuMP.@constraint(gm.model, fr_lifted - f*r_exp_u - f_max*r_exp_lifted + f_max*r_exp_u >= 0))
