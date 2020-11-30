@@ -23,7 +23,7 @@ function add_lp_relaxation(
         base_name = names[i] * "_" * name
     )
     A, b = get_eq_constraint_matrices(relaxation)
-    @constraint(m, A * x .== b)
+    JuMP.@constraint(m, A * x .== b)
     return x, relaxation.x_index, relaxation.y_index
 end
 
@@ -55,8 +55,8 @@ function add_milp_relaxation(
         base_name = names[i] * "_" * name
     )
     A, b = get_eq_constraint_matrices(relaxation)
-    @constraint(m, A * x .== b)
+    JuMP.@constraint(m, A * x .== b)
     A, b = get_leq_constraint_matrices(relaxation)
-    @constraint(m, A * x .<= b)
+    JuMP.@constraint(m, A * x .<= b)
     return x, relaxation.x_index, relaxation.y_index
 end
