@@ -28,6 +28,10 @@ function run_dwp_gf(file, optimizer; kwargs...)
     return run_gf(file, DWPGasModel, optimizer; kwargs...)
 end
 
+""
+function run_lrwp_gf(file, optimizer; kwargs...)
+    return run_gf(file, LRWPGasModel, optimizer; kwargs...)
+end
 
 "construct the gas flow feasbility problem"
 function build_gf(gm::AbstractGasModel)
