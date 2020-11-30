@@ -398,6 +398,12 @@ function constraint_compressor_energy(gm::AbstractLRWPModel, n::Int, k, power_ma
     var(gm, n, :r_exp_comp_lifted)[k] = JuMP.@variable(gm.model, base_name="r_exp_comp_lifted_$(k)")
     r_exp_lifted = var(gm, n, :r_exp_comp_lifted, k)
 
+    # variable_fr_lifted()
+    # if get(var(gm, n), :fr_comp_lifted) == false
+        var(gm, n)[:fr_comp_lifted] = Dict()
+    # end
+    var(gm, n, :fr_comp_lifted)[k] = JuMP.@variable(gm.model, base_name="fr_comp_lifted_$(k)")
+    fr_lifted = var(gm, n, :fr_comp_lifted, k)
 
     # polyhedral relaxation for r_exp = r^(m/2)-1
         r_exp = x->x^(m/2)-1
