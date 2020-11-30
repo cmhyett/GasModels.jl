@@ -87,4 +87,5 @@ module GasModels
     include("io/diagnostics.jl")
 
     include("core/export.jl")
+    include("core/utils.jl")
 end

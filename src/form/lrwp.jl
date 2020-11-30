@@ -43,9 +43,9 @@ end
 function constraint_resistor_junction_pressure_squared_relaxation(gm::AbstractLRWPModel, n::Int, i::Int, p_min, p_max)
     p = var(gm, n, :p, i)
     psqr = var(gm, n, :psqr, i)
-    if get(var(gm, n), :pp_lifted) == false
+    # if get(var(gm, n), :pp_lifted) == false
         var(gm, n)[:pp_lifted] = Dict()
-    end
+    # end
     var(gm, n, :pp_lifted)[i] = JuMP.@variable(gm.model, base_name="pp_lifted_$(i)")
     pp_lifted = var(gm, n, :pp_lifted, i)
 
@@ -70,16 +70,16 @@ function constraint_resistor_darcy_weisbach(gm::AbstractLRWPModel, n::Int, k, i,
     p_j = var(gm, n, :p, j)
     f = var(gm, n, :f_resistor, k)
     # variable_resistor_y_linear()
-    if get(var(gm, n), :y_resistor_linear) == false
+    # if get(var(gm, n), :y_resistor_linear) == false
         var(gm, n)[:y_resistor_linear] = Dict()
-    end
+    # end
     var(gm, n, :y_resistor_linear)[k] = JuMP.@variable(gm.model, base_name="y_resistor_linear_$(k)")
     y_linear = var(gm, n, :y_resistor_linear, k)
 
     # variable_resistor_fmod_f()
-    if get(var(gm, n), :fmodf_resistor_lifted) == false
+    # if get(var(gm, n), :fmodf_resistor_lifted) == false
         var(gm, n)[:fmodf_resistor_lifted] = Dict()
-    end
+    # end
     var(gm, n, :fmodf_resistor_lifted)[k] = JuMP.@variable(gm.model, base_name="fmodf__resistor_lifted_$(k)")
     fmodf_lifted = var(gm, n, :fmodf__resistor_lifted, k)
 
@@ -116,9 +116,9 @@ function constraint_loss_resistor_pressure(gm::AbstractLRWPModel, n::Int, k::Int
     p_j = var(gm, n, :p, j)
     f = var(gm, n, :f_loss_resistor, k)
     # variable_loss_resistor_y_linear()
-    if get(var(gm, n), :y_loss_resistor_linear) == false
+    # if get(var(gm, n), :y_loss_resistor_linear) == false
         var(gm, n)[:y_loss_resistor_linear] = Dict()
-    end
+    # end
     var(gm, n, :y_loss_resistor_linear)[k] = JuMP.@variable(gm.model, base_name="y_loss_resistor_linear_$(k)")
     y_linear = var(gm, n, :y_loss_resistor_linear, k)
 
@@ -392,9 +392,9 @@ function constraint_compressor_energy(gm::AbstractLRWPModel, n::Int, k, power_ma
     f_max = ref(gm, n, :compressor, k)["flow_max"]
 
     # variable_r_exp_lifted()
-    if get(var(gm, n), :r_exp_comp_lifted) == false
+    # if get(var(gm, n), :r_exp_comp_lifted) == false
         var(gm, n)[:r_exp_comp_lifted] = Dict()
-    end
+    # end
     var(gm, n, :r_exp_comp_lifted)[k] = JuMP.@variable(gm.model, base_name="r_exp_comp_lifted_$(k)")
     r_exp_lifted = var(gm, n, :r_exp_comp_lifted, k)
 
