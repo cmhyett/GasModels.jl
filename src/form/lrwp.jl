@@ -3,9 +3,60 @@
 ######################################################################################################
 ## Constraints
 ######################################################################################################
-# new functions:
-    # variables
-        # fmodf_pipe_lifted
+
+
+"function for minimizing prioritized load shed: ``\\min \\sum_{j \\in {\\cal D}} \\kappa_j \\boldsymbol{d}_j - \\sum_{j \\in {\\cal T}} \\kappa_j \\boldsymbol{\\tau}_j - \\sum_{j \\in {\\cal R}} \\kappa_j \\boldsymbol{r}_j ``"
+function objective_min_economic_costs(gm::LRWPGasModel, nws = [gm.cnw])
+    r = Dict(n => var(gm, n, :rsqr) for n in nws)
+    f = Dict(n => var(gm, n, :f_compressor) for n in nws)
+    fl = Dict(n => var(gm, n, :fl) for n in nws)
+    fg = Dict(n => var(gm, n, :fg) for n in nws)
+    ft = Dict(n => var(gm, n, :ft) for n in nws)
+    gamma = gm.data["specific_heat_capacity_ratio"]
+    m = ((gamma - 1) / gamma) / 2
+    load_set = Dict(
+        n => keys(Dict(
+            x for x in ref(gm, n, :delivery) if x.second["is_dispatchable"] == 1
+        )) for n in nws
+    )
+    transfer_set = Dict(
+        n => keys(Dict(
+            x for x in ref(gm, n, :transfer) if x.second["is_dispatchable"] == 1
+        )) for n in nws
+    )
+    prod_set = Dict(
+        n => keys(Dict(
+            x for x in ref(gm, n, :receipt) if x.second["is_dispatchable"] == 1
+        )) for n in nws
+    )
+    load_prices = Dict(
+        n => Dict(
+            i => get(ref(gm, n, :delivery, i), "bid_price", 1.0) for i in load_set[n]
+        ) for n in nws
+    )
+    prod_prices = Dict(
+        n => Dict(
+            i => get(ref(gm, n, :receipt, i), "offer_price", 1.0) for i in prod_set[n]
+        ) for n in nws
+    )
+    transfer_prices = Dict(
+        n => Dict(
+            i => get(ref(gm, n, :transfer, i), "bid_price", 1.0) for i in transfer_set[n]
+        ) for n in nws
+    )
+
+    economic_weighting = get(gm.data, "economic_weighting", 1.0)
+
+    z = JuMP.@variable(gm.model)
+    JuMP.@constraint(gm.model, z >= sum(
+                                          economic_weighting * sum(-load_prices[n][i] * fl[n][i] for i in load_set[n]) +
+                                          economic_weighting *
+                                          sum(-transfer_prices[n][i] * ft[n][i] for i in transfer_set[n]) +
+                                          economic_weighting * sum(prod_prices[n][i] * fg[n][i] for i in prod_set[n])
+                                          for n in nws
+                                       ))
+    JuMP.@objective(gm.model, Min, z)
+end
 
 "Constraint: Weymouth equation--not applicable for LRWP models"
 function constraint_pipe_weymouth(gm::AbstractLRWPModel, n::Int, k, i, j, f_min, f_max, w, pd_min, pd_max)
