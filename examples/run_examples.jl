@@ -4,9 +4,9 @@ using JuMP
 using Ipopt
 using Cbc
 using Juniper
-using Gurobi
 using SCIP
 using Test
+#using Gurobi
 #using ECOS
 #using SCS
 #using CPLEX
